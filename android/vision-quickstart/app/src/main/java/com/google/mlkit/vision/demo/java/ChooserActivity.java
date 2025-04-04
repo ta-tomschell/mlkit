@@ -18,12 +18,9 @@ package com.google.mlkit.vision.demo.java;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
-import android.os.StrictMode;
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,54 +28,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.google.mlkit.vision.demo.BuildConfig;
 import com.google.mlkit.vision.demo.R;
+import com.google.mlkit.vision.demo.kotlin.CameraXLivePreviewActivity;
+import com.google.mlkit.vision.demo.kotlin.CameraXSourceDemoActivity;
+import com.google.mlkit.vision.demo.kotlin.LivePreviewActivity;
+import com.google.mlkit.vision.demo.kotlin.StillImageActivity;
 
 /** Demo app chooser which allows you pick from all available testing Activities. */
-public final class ChooserActivity extends AppCompatActivity
-    implements AdapterView.OnItemClickListener {
-  private static final String TAG = "ChooserActivity";
-
-  @SuppressWarnings("NewApi") // CameraX is only available on API 21+
-  private static final Class<?>[] CLASSES =
-      VERSION.SDK_INT < VERSION_CODES.LOLLIPOP
-          ? new Class<?>[] {
-            LivePreviewActivity.class, StillImageActivity.class,
-          }
-          : new Class<?>[] {
-            LivePreviewActivity.class,
-            StillImageActivity.class,
-            CameraXLivePreviewActivity.class,
-            CameraXSourceDemoActivity.class,
-          };
-
-  private static final int[] DESCRIPTION_IDS =
-      VERSION.SDK_INT < VERSION_CODES.LOLLIPOP
-          ? new int[] {
-            R.string.desc_camera_source_activity, R.string.desc_still_image_activity,
-          }
-          : new int[] {
-            R.string.desc_camera_source_activity,
-            R.string.desc_still_image_activity,
-            R.string.desc_camerax_live_preview_activity,
-            R.string.desc_cameraxsource_demo_activity,
-          };
+public final class ChooserActivity extends AppCompatActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    if (BuildConfig.DEBUG) {
-      StrictMode.setThreadPolicy(
-          new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
-      StrictMode.setVmPolicy(
-          new StrictMode.VmPolicy.Builder()
-              .detectLeakedSqlLiteObjects()
-              .detectLeakedClosableObjects()
-              .penaltyLog()
-              .build());
-    }
     super.onCreate(savedInstanceState);
-    Log.d(TAG, "onCreate");
-
     setContentView(R.layout.activity_chooser);
 
     // Set up ListView and Adapter
@@ -88,13 +49,9 @@ public final class ChooserActivity extends AppCompatActivity
     adapter.setDescriptionIds(DESCRIPTION_IDS);
 
     listView.setAdapter(adapter);
-    listView.setOnItemClickListener(this);
-  }
-
-  @Override
-  public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-    Class<?> clicked = CLASSES[position];
-    startActivity(new Intent(this, clicked));
+    listView.setOnItemClickListener(
+        (parent, view, position, id) ->
+            startActivity(new Intent(this, CLASSES[position])));
   }
 
   private static class MyArrayAdapter extends ArrayAdapter<Class<?>> {
@@ -130,4 +87,20 @@ public final class ChooserActivity extends AppCompatActivity
       this.descriptionIds = descriptionIds;
     }
   }
+
+  private static final Class<?>[] CLASSES =
+      new Class<?>[] {
+        LivePreviewActivity.class,
+        CameraXLivePreviewActivity.class,
+        CameraXSourceDemoActivity.class,
+        StillImageActivity.class,
+      };
+
+  private static final int[] DESCRIPTION_IDS =
+      new int[] {
+        R.string.desc_camera_source_activity,
+        R.string.desc_camerax_live_preview_activity,
+        R.string.desc_cameraxsource_demo_activity,
+        R.string.desc_still_image_activity,
+      };
 }

@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'com.google.mlkit.vision.demo'
     compileSdkVersion 34
 
     defaultConfig {
@@ -13,8 +14,8 @@ android {
         versionCode 11
         versionName "1.11"
         vectorDrawables.useSupportLibrary = true
-        setProperty("archivesBaseName", "vision-quickstart")
     }
+
     buildTypes {
         proguard {
             debuggable false
@@ -35,13 +36,30 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     // Do NOT compress tflite model files (need to call out to developers!)
     aaptOptions {
         noCompress "tflite"
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+// Set the output APK name
+android.applicationVariants.all { variant ->
+    variant.outputs.all {
+        outputFileName = "vision-quickstart-${variant.name}.apk"
     }
 }
 
